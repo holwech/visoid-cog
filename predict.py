@@ -240,7 +240,7 @@ class Predictor(BasePredictor):
 
 def load_model(name):
     model = create_model(f'./models/{name}.yaml').cpu()
-    torch.load('./models/v1-5-pruned.ckpt')
+    torch.load(os.path.abspath('./models/v1-5-pruned.ckpt'))
     model.load_state_dict(load_state_dict(f'./models/v1-5-pruned.ckpt', location='cuda'), strict=False)
     model.load_state_dict(load_state_dict(f'./models/{name}.pth', location='cuda'), strict=False)
     model = model.cuda()
