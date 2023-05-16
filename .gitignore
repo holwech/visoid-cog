@@ -1,0 +1,7 @@
+models/
+.cog/
+.vscode/
+.venv/
+/models/
+
+.python-version
