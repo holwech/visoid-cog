@@ -178,35 +178,35 @@ class Predictor(BasePredictor):
     def select_model(self, structure):
         if structure == 'canny':
             model = self.canny_model
-        elif structure == 'depth':
-            model = self.depth_model
-        elif structure == 'lineart':
-            model = self.lineart_model
-        elif structure == 'normal':
-            model = self.normal_model
-        elif structure == 'pose':
-            model = self.pose_model
-        elif structure == 'scribble':
-            model = self.scribble_model
-        elif structure == 'seg':
-            model = self.seg_model
+        # elif structure == 'depth':
+        #     model = self.depth_model
+        # elif structure == 'lineart':
+        #     model = self.lineart_model
+        # elif structure == 'normal':
+        #     model = self.normal_model
+        # elif structure == 'pose':
+        #     model = self.pose_model
+        # elif structure == 'scribble':
+        #     model = self.scribble_model
+        # elif structure == 'seg':
+        #     model = self.seg_model
         return model
 
     def process_image(self, image, structure, preprocessor_resolution, low_threshold=100, high_threshold=200):
         if structure == 'canny':
             input_image = self.canny_preprocessor(image, preprocessor_resolution, low_threshold, high_threshold)
-        elif structure == 'depth':
-            input_image = self.depth_preprocessor(image, preprocessor_resolution)
-        elif structure == 'lineart':
-            input_image = self.lineart_preprocessor(image, preprocessor_resolution)
-        elif structure == 'normal':
-            input_image = self.normal_preprocessor(image, preprocessor_resolution)
-        elif structure == 'pose':
-            input_image = self.pose_preprocessor(image, preprocessor_resolution)
-        elif structure == 'scribble':
-            input_image = self.scribble_preprocessor(image, preprocessor_resolution)
-        elif structure == 'seg':
-            input_image = self.seg_preprocessor(image, preprocessor_resolution)
+        # elif structure == 'depth':
+        #     input_image = self.depth_preprocessor(image, preprocessor_resolution)
+        # elif structure == 'lineart':
+        #     input_image = self.lineart_preprocessor(image, preprocessor_resolution)
+        # elif structure == 'normal':
+        #     input_image = self.normal_preprocessor(image, preprocessor_resolution)
+        # elif structure == 'pose':
+        #     input_image = self.pose_preprocessor(image, preprocessor_resolution)
+        # elif structure == 'scribble':
+        #     input_image = self.scribble_preprocessor(image, preprocessor_resolution)
+        # elif structure == 'seg':
+        #     input_image = self.seg_preprocessor(image, preprocessor_resolution)
         return input_image
 
     def canny_preprocessor(self, image, preprocessor_resolution, low_threshold, high_threshold):
