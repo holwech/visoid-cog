@@ -5,22 +5,22 @@ from huggingface_hub import hf_hub_download
 
 REPO = "lllyasviel/ControlNet-v1-1"
 MODEL_PATHS = [
-    "control_v11e_sd15_shuffle",
+    # "control_v11e_sd15_shuffle",
     "control_v11p_sd15_canny",
-    "control_v11f1p_sd15_depth",
-    "control_v11p_sd15_inpaint",
-    "control_v11p_sd15_lineart",
-    "control_v11p_sd15_mlsd",
-    "control_v11p_sd15_normalbae",
-    "control_v11p_sd15_openpose",
-    "control_v11p_sd15_scribble",
-    "control_v11p_sd15_seg",
-    "control_v11p_sd15_softedge",
-    "control_v11f1e_sd15_tile"
+    # "control_v11f1p_sd15_depth",
+    # "control_v11p_sd15_inpaint",
+    # "control_v11p_sd15_lineart",
+    # "control_v11p_sd15_mlsd",
+    # "control_v11p_sd15_normalbae",
+    # "control_v11p_sd15_openpose",
+    # "control_v11p_sd15_scribble",
+    # "control_v11p_sd15_seg",
+    # "control_v11p_sd15_softedge",
+    # "control_v11f1e_sd15_tile"
 ]
 
-local_dir = './models'
-os.makedirs(local_dir, exist_ok=True) # ensure the directory exists
+local_dir = "./models"
+os.makedirs(local_dir, exist_ok=True)  # ensure the directory exists
 
 for model in MODEL_PATHS:
     yaml_path = os.path.join(local_dir, "%s.yaml" % model)
@@ -30,12 +30,26 @@ for model in MODEL_PATHS:
     # print(os.path.isfile(yaml_path))
     # print(yaml_path)
 
-    
     if not os.path.isfile(yaml_path):
-        hf_hub_download(repo_id=REPO, filename="%s.yaml" % model, local_dir=local_dir, local_dir_use_symlinks=False)
+        hf_hub_download(
+            repo_id=REPO,
+            filename="%s.yaml" % model,
+            local_dir=local_dir,
+            local_dir_use_symlinks=False,
+        )
     if not os.path.isfile(pth_path):
-        hf_hub_download(repo_id=REPO, filename="%s.pth" % model, local_dir=local_dir, local_dir_use_symlinks=False)
+        hf_hub_download(
+            repo_id=REPO,
+            filename="%s.pth" % model,
+            local_dir=local_dir,
+            local_dir_use_symlinks=False,
+        )
 
 ckpt_path = os.path.join(local_dir, "v1-5-pruned.ckpt")
 if not os.path.isfile(ckpt_path):
-    hf_hub_download(repo_id="runwayml/stable-diffusion-v1-5", filename="v1-5-pruned.ckpt", local_dir=local_dir, local_dir_use_symlinks=False)
+    hf_hub_download(
+        repo_id="runwayml/stable-diffusion-v1-5",
+        filename="v1-5-pruned.ckpt",
+        local_dir=local_dir,
+        local_dir_use_symlinks=False,
+    )
