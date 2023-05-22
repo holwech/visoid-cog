@@ -32,10 +32,10 @@ for model in MODEL_PATHS:
 
     
     if not os.path.isfile(yaml_path):
-        hf_hub_download(repo_id=REPO, filename="%s.yaml" % model, local_dir=local_dir)
+        hf_hub_download(repo_id=REPO, filename="%s.yaml" % model, local_dir=local_dir, local_dir_use_symlinks=False)
     if not os.path.isfile(pth_path):
-        hf_hub_download(repo_id=REPO, filename="%s.pth" % model, local_dir=local_dir)
+        hf_hub_download(repo_id=REPO, filename="%s.pth" % model, local_dir=local_dir, local_dir_use_symlinks=False)
 
 ckpt_path = os.path.join(local_dir, "v1-5-pruned.ckpt")
 if not os.path.isfile(ckpt_path):
-    hf_hub_download(repo_id="runwayml/stable-diffusion-v1-5", filename="v1-5-pruned.ckpt", local_dir=local_dir)
+    hf_hub_download(repo_id="runwayml/stable-diffusion-v1-5", filename="v1-5-pruned.ckpt", local_dir=local_dir, local_dir_use_symlinks=False)
