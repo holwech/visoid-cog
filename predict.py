@@ -33,7 +33,7 @@ class Predictor(BasePredictor):
         self.canny_model = load_model(canny_model_name)
         self.canny_dim_sampler = DDIMSampler(self.canny_model)
         # Depth
-        # depth_model_name = 'control_v11p_sd15_depth'
+        # depth_model_name = 'control_v11f1p_sd15_depth'
         # self.depth_model = load_model(depth_model_name)
         # self.depth_dim_sampler = DDIMSampler(self.depth_model)
         # # Normal
