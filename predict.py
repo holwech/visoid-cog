@@ -33,30 +33,30 @@ class Predictor(BasePredictor):
         self.canny_model = load_model(canny_model_name)
         self.canny_dim_sampler = DDIMSampler(self.canny_model)
         # Depth
-        depth_model_name = 'control_v11p_sd15_depth'
-        self.depth_model = load_model(depth_model_name)
-        self.depth_dim_sampler = DDIMSampler(self.depth_model)
-        # Normal
-        normal_model_name = 'control_v11p_sd15_normalbae'
-        self.normal_model = load_model(normal_model_name)
-        self.normal_dim_sampler = DDIMSampler(self.normal_model)
-        # Lineart
-        lineart_model_name = 'control_v11p_sd15_lineart'
-        self.lineart_model = load_model(lineart_model_name)
-        self.lineart_dim_sampler = DDIMSampler(self.lineart_model)
-        # Scribble
-        scribble_model_name = 'control_v11p_sd15_scribble'
-        self.scribble_model = load_model(scribble_model_name)
-        self.scribble_dim_sampler = DDIMSampler(self.scribble_model)
-        # Seg
-        seg_model_name = 'control_v11p_sd15_seg'
-        self.seg_model = load_model(seg_model_name)
-        self.seg_dim_sampler = DDIMSampler(self.seg_model)
-        # Pose
-        pose_model_name = 'control_v11p_sd15_openpose'
-        self.pose_model = load_model(pose_model_name)
-        self.pose_dim_sampler = DDIMSampler(self.pose_model)
-        print("Setup complete in %f" % (time.time() - st))
+        # depth_model_name = 'control_v11p_sd15_depth'
+        # self.depth_model = load_model(depth_model_name)
+        # self.depth_dim_sampler = DDIMSampler(self.depth_model)
+        # # Normal
+        # normal_model_name = 'control_v11p_sd15_normalbae'
+        # self.normal_model = load_model(normal_model_name)
+        # self.normal_dim_sampler = DDIMSampler(self.normal_model)
+        # # Lineart
+        # lineart_model_name = 'control_v11p_sd15_lineart'
+        # self.lineart_model = load_model(lineart_model_name)
+        # self.lineart_dim_sampler = DDIMSampler(self.lineart_model)
+        # # Scribble
+        # scribble_model_name = 'control_v11p_sd15_scribble'
+        # self.scribble_model = load_model(scribble_model_name)
+        # self.scribble_dim_sampler = DDIMSampler(self.scribble_model)
+        # # Seg
+        # seg_model_name = 'control_v11p_sd15_seg'
+        # self.seg_model = load_model(seg_model_name)
+        # self.seg_dim_sampler = DDIMSampler(self.seg_model)
+        # # Pose
+        # pose_model_name = 'control_v11p_sd15_openpose'
+        # self.pose_model = load_model(pose_model_name)
+        # self.pose_dim_sampler = DDIMSampler(self.pose_model)
+        # print("Setup complete in %f" % (time.time() - st))
 
     @torch.inference_mode()
     def predict(self,
