@@ -29,7 +29,7 @@ class Predictor(BasePredictor):
         print("Loading pipeline...")
         st = time.time()
         # Canny
-        canny_model_name = 'control_v11p_sd15_canny'
+        canny_model_name = "control_v11p_sd15_canny"
         self.canny_model = load_model(canny_model_name)
         self.canny_dim_sampler = DDIMSampler(self.canny_model)
         # Depth
@@ -59,76 +59,73 @@ class Predictor(BasePredictor):
         # print("Setup complete in %f" % (time.time() - st))
 
     @torch.inference_mode()
-    def predict(self,
-                image: Path = Input(
-                    description="Input image"
-                ),
-                prompt: str = Input(
-                    description="Prompt for the model"
-                ),
-                structure: str = Input(
-                    description="Structure to condition on",
-                    choices=["canny", "depth", "hed", "hough", "normal", "pose", "scribble", "seg"]
-                ),
-                num_samples: str = Input(
-                    description="Number of samples (higher values may OOM)",
-                    choices=['1', '4'],
-                    default='1'
-                ),
-                image_resolution: str = Input(
-                    description="Resolution of image (square)",
-                    choices=['256', '512', '768'],
-                    default='512'
-                ),
-                ddim_steps: int = Input(
-                    description="Steps",
-                    default=20
-                ),
-                strength: float = Input(
-                    description="Control strength",
-                    default=1.0
-                ),
-                scale: float = Input(
-                    description="Scale for classifier-free guidance",
-                    default=9.0,
-                    ge=0.1,
-                    le=30.0
-                ),
-                seed: int = Input(
-                    description="Seed",
-                    default=None
-                ),
-                eta: float = Input(
-                    description="Controls the amount of noise that is added to the input data during the denoising diffusion process. Higher value -> more noise",
-                    default=0.0
-                ),
-                preprocessor_resolution: int = Input(
-                    description="Preprocessor resolution",
-                    default=512
-                ),
-                a_prompt: str = Input(
-                    description="Additional text to be appended to prompt",
-                    default="Best quality, extremely detailed"
-                ),
-                n_prompt: str = Input(
-                    description="Negative prompt",
-                    default="Longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality"
-                ),
-                # Only applicable when model type is 'canny'
-                low_threshold: int = Input(
-                    description="[canny only] Line detection low threshold",
-                    default=100,
-                    ge=1,
-                    le=255
-                ),
-                # Only applicable when model type is 'canny'
-                high_threshold: int = Input(
-                    description="[canny only] Line detection high threshold",
-                    default=200,
-                    ge=1,
-                    le=255
-                ),
-                ) -> List[Path]:
+    def predict(
+        self,
+        image: Path = Input(description="Input image"),
+        prompt: str = Input(description="Prompt for the model"),
+        structure: str = Input(
+            description="Structure to condition on",
+            choices=[
+                "canny",
+                "depth",
+                "hed",
+                "hough",
+                "normal",
+                "pose",
+                "scribble",
+                "seg",
+            ],
+        ),
+        num_samples: int = Input(
+            description="Number of samples (higher values may OOM)",
+            default=1,
+            ge=1,
+            le=4,
+        ),
+        image_resolution: str = Input(
+            description="Resolution of image (square)",
+            choices=["256", "512", "768"],
+            default="512",
+        ),
+        ddim_steps: int = Input(description="Steps", default=20),
+        strength: float = Input(description="Control strength", default=1.0),
+        scale: float = Input(
+            description="Scale for classifier-free guidance",
+            default=9.0,
+            ge=0.1,
+            le=30.0,
+        ),
+        seed: int = Input(description="Seed", default=None),
+        eta: float = Input(
+            description="Controls the amount of noise that is added to the input data during the denoising diffusion process. Higher value -> more noise",
+            default=0.0,
+        ),
+        preprocessor_resolution: int = Input(
+            description="Preprocessor resolution", default=512
+        ),
+        a_prompt: str = Input(
+            description="Additional text to be appended to prompt",
+            default="Best quality, extremely detailed",
+        ),
+        n_prompt: str = Input(
+            description="Negative prompt",
+            default="Longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality",
+        ),
+        # Only applicable when model type is 'canny'
+        low_threshold: int = Input(
+            description="[canny only] Line detection low threshold",
+            default=100,
+            ge=1,
+            le=255,
+        ),
+        # Only applicable when model type is 'canny'
+        high_threshold: int = Input(
+            description="[canny only] Line detection high threshold",
+            default=200,
+            ge=1,
+            le=255,
+        ),
+    ) -> List[Path]:
         image = np.array(Image.open(image))
         image = HWC3(image)
         img = resize_image(image, image_resolution)
@@ -136,35 +133,55 @@ class Predictor(BasePredictor):
 
         model = self.select_model(structure)
         ddim_sampler = self.select_sampler(structure)
-        detected_map = self.process_image(image, structure, preprocessor_resolution, low_threshold, high_threshold)
+        detected_map = self.process_image(
+            image, structure, preprocessor_resolution, low_threshold, high_threshold
+        )
 
         detected_map = HWC3(detected_map)
         detected_map = cv2.resize(detected_map, (W, H), interpolation=cv2.INTER_LINEAR)
 
         control = torch.from_numpy(detected_map.copy()).float().cuda() / 255.0
         control = torch.stack([control for _ in range(num_samples)], dim=0)
-        control = einops.rearrange(control, 'b h w c -> b c h w').clone()
+        control = einops.rearrange(control, "b h w c -> b c h w").clone()
 
         if seed == -1:
             seed = random.randint(0, 65535)
         seed_everything(seed)
 
-        cond = {"c_concat": [control],
-                "c_crossattn": [model.get_learned_conditioning([prompt + ', ' + a_prompt] * num_samples)]}
-        un_cond = {"c_concat": [control],
-                   "c_crossattn": [model.get_learned_conditioning([n_prompt] * num_samples)]}
+        cond = {
+            "c_concat": [control],
+            "c_crossattn": [
+                model.get_learned_conditioning([prompt + ", " + a_prompt] * num_samples)
+            ],
+        }
+        un_cond = {
+            "c_concat": [control],
+            "c_crossattn": [model.get_learned_conditioning([n_prompt] * num_samples)],
+        }
         shape = (4, H // 8, W // 8)
 
         model.control_scales = [strength] * 13
         # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
 
-        samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
-                                                     shape, cond, verbose=False, eta=eta,
-                                                     unconditional_guidance_scale=scale,
-                                                     unconditional_conditioning=un_cond)
+        samples, intermediates = ddim_sampler.sample(
+            ddim_steps,
+            num_samples,
+            shape,
+            cond,
+            verbose=False,
+            eta=eta,
+            unconditional_guidance_scale=scale,
+            unconditional_conditioning=un_cond,
+        )
 
         x_samples = model.decode_first_stage(samples)
-        x_samples = (einops.rearrange(x_samples, 'b c h w -> b h w c') * 127.5 + 127.5).cpu().numpy().clip(0, 255).astype(np.uint8)
+        x_samples = (
+            (einops.rearrange(x_samples, "b c h w -> b h w c") * 127.5 + 127.5)
+            .cpu()
+            .numpy()
+            .clip(0, 255)
+            .astype(np.uint8)
+        )
 
         results = [x_samples[i] for i in range(num_samples)]
 
@@ -176,9 +193,8 @@ class Predictor(BasePredictor):
         return output_paths
 
     def select_model(self, structure):
-        if structure == 'canny':
-            model = self.canny_model
-        # elif structure == 'depth':
+        model = self.canny_model
+        # if structure == 'depth':
         #     model = self.depth_model
         # elif structure == 'lineart':
         #     model = self.lineart_model
@@ -192,10 +208,22 @@ class Predictor(BasePredictor):
         #     model = self.seg_model
         return model
 
-    def process_image(self, image, structure, preprocessor_resolution, low_threshold=100, high_threshold=200):
-        if structure == 'canny':
-            input_image = self.canny_preprocessor(image, preprocessor_resolution, low_threshold, high_threshold)
-        # elif structure == 'depth':
+    def select_sampler(self, structure):
+        sampler = self.canny_dim_sampler
+        return sampler
+
+    def process_image(
+        self,
+        image,
+        structure,
+        preprocessor_resolution,
+        low_threshold=100,
+        high_threshold=200,
+    ):
+        input_image = input_image = self.canny_preprocessor(
+            image, preprocessor_resolution, low_threshold, high_threshold
+        )
+        # if structure == 'depth':
         #     input_image = self.depth_preprocessor(image, preprocessor_resolution)
         # elif structure == 'lineart':
         #     input_image = self.lineart_preprocessor(image, preprocessor_resolution)
@@ -209,8 +237,12 @@ class Predictor(BasePredictor):
         #     input_image = self.seg_preprocessor(image, preprocessor_resolution)
         return input_image
 
-    def canny_preprocessor(self, image, preprocessor_resolution, low_threshold, high_threshold):
-        detected_map = CannyDetector(resize_image(image, preprocessor_resolution), low_threshold, high_threshold)
+    def canny_preprocessor(
+        self, image, preprocessor_resolution, low_threshold, high_threshold
+    ):
+        detected_map = CannyDetector(
+            resize_image(image, preprocessor_resolution), low_threshold, high_threshold
+        )
         return detected_map
 
     def depth_preprocessor(self, image, preprocessor_resolution):
@@ -218,7 +250,9 @@ class Predictor(BasePredictor):
         return detected_map
 
     def lineart_preprocessor(self, image, preprocessor_resolution):
-        detected_map = LineartDetector(resize_image(image, preprocessor_resolution), coarse='Coarse')
+        detected_map = LineartDetector(
+            resize_image(image, preprocessor_resolution), coarse="Coarse"
+        )
         return detected_map
 
     def normal_preprocessor(self, image, preprocessor_resolution):
@@ -226,7 +260,9 @@ class Predictor(BasePredictor):
         return detected_map
 
     def pose_preprocessor(self, image, preprocessor_resolution):
-        detected_map = OpenposeDetector(resize_image(image, preprocessor_resolution), hand_and_face='Full')
+        detected_map = OpenposeDetector(
+            resize_image(image, preprocessor_resolution), hand_and_face="Full"
+        )
         return detected_map
 
     def scribble_preprocessor(self, image, preprocessor_resolution):
@@ -234,14 +270,20 @@ class Predictor(BasePredictor):
         return detected_map
 
     def seg_preprocessor(self, image, preprocessor_resolution):
-        detected_map = OneformerADE20kDetector(resize_image(image, preprocessor_resolution))
+        detected_map = OneformerADE20kDetector(
+            resize_image(image, preprocessor_resolution)
+        )
         return detected_map
 
 
 def load_model(name):
-    model = create_model(f'./models/{name}.yaml').cpu()
-    torch.load(os.path.abspath('./models/v1-5-pruned.ckpt'))
-    model.load_state_dict(load_state_dict(f'./models/v1-5-pruned.ckpt', location='cuda'), strict=False)
-    model.load_state_dict(load_state_dict(f'./models/{name}.pth', location='cuda'), strict=False)
+    model = create_model(f"./models/{name}.yaml").cpu()
+    torch.load(os.path.abspath("./models/v1-5-pruned.ckpt"))
+    model.load_state_dict(
+        load_state_dict(f"./models/v1-5-pruned.ckpt", location="cuda"), strict=False
+    )
+    model.load_state_dict(
+        load_state_dict(f"./models/{name}.pth", location="cuda"), strict=False
+    )
     model = model.cuda()
     return model
