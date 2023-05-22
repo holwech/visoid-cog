@@ -240,37 +240,37 @@ class Predictor(BasePredictor):
     def canny_preprocessor(
         self, image, preprocessor_resolution, low_threshold, high_threshold
     ):
-        detected_map = CannyDetector(
+        detected_map = CannyDetector()(
             resize_image(image, preprocessor_resolution), low_threshold, high_threshold
         )
         return detected_map
 
     def depth_preprocessor(self, image, preprocessor_resolution):
-        detected_map = MidasDetector(resize_image(image, preprocessor_resolution))
+        detected_map = MidasDetector()(resize_image(image, preprocessor_resolution))
         return detected_map
 
     def lineart_preprocessor(self, image, preprocessor_resolution):
-        detected_map = LineartDetector(
+        detected_map = LineartDetector()(
             resize_image(image, preprocessor_resolution), coarse="Coarse"
         )
         return detected_map
 
     def normal_preprocessor(self, image, preprocessor_resolution):
-        detected_map = NormalBaeDetector(resize_image(image, preprocessor_resolution))
+        detected_map = NormalBaeDetector()(resize_image(image, preprocessor_resolution))
         return detected_map
 
     def pose_preprocessor(self, image, preprocessor_resolution):
-        detected_map = OpenposeDetector(
+        detected_map = OpenposeDetector()(
             resize_image(image, preprocessor_resolution), hand_and_face="Full"
         )
         return detected_map
 
     def scribble_preprocessor(self, image, preprocessor_resolution):
-        detected_map = HEDdetector(resize_image(image, preprocessor_resolution))
+        detected_map = HEDdetector()(resize_image(image, preprocessor_resolution))
         return detected_map
 
     def seg_preprocessor(self, image, preprocessor_resolution):
-        detected_map = OneformerADE20kDetector(
+        detected_map = OneformerADE20kDetector()(
             resize_image(image, preprocessor_resolution)
         )
         return detected_map
